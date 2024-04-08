@@ -4,7 +4,13 @@ const fs = require('fs');
 const { token } = require('./config.json');
 const { channel } = require('diagnostics_channel');
 
+// DB
+const Database = require('better-sqlite3');
+const db = new Database('db.sqlite3', { verbose: console.log });
+
 // 外部モジュール
+const chara_func = require('./commands/chara.js');
+const exp_func = require('./commands/exp.js');
 
 const options = {
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
@@ -25,6 +31,10 @@ var area_progress = {test:0}
 // 本体
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
+    // DBファイルの直ダウンロード
+    if (message.content == "$getDB") {
+        client.channels.cache.get('1073864827291840554').send({ files: ['db.sqlite3'] })
+    }
     if (!message.content.startsWith("?")) return;
     
     // Garden of Pruner用のコマンド
@@ -117,7 +127,40 @@ client.on('messageCreate', async (message) => {
         }
     // Reincarnetion用のコマンド
     }else if(message.guildId === "1136891962264391762"){
-        console.log("未実装")
+        let commands = message.content.split(" ");
+        // キャラ状態管理コマンド
+        if (message.content.includes('?job')) {
+            if (message.content === '?job'){
+                message.channel.send("`>引数が不正です`");
+                return
+            }
+            if (isNaN(commands[1])){
+                message.channel.send("`>ジョブIDが不正です`");
+                return
+            }
+            if (0 >= Number(commands[1]) || Number(commands[1]) > 7){
+                message.channel.send("`>ジョブIDが不正です`");
+                return
+            }
+            let send_msg = await chara_func(db,message.author.id, commands);
+            message.channel.send(send_msg);
+        // 経験値管理コマンド
+        }else if(message.content.includes('?exp')) {
+            if (message.content === '?exp'){
+                message.channel.send("`>引数が不正です`");
+                return
+            }
+            if (isNaN(commands[1])){
+                message.channel.send("`>ジョブIDが不正です`");
+                return
+            }
+            if (0 >= Number(commands[1]) || Number(commands[1]) > 7){
+                message.channel.send("`>ジョブIDが不正です`");
+                return
+            }
+            let send_msg = await exp_func(db,message.author.id, commands);
+            message.channel.send(send_msg);
+        }
     }
     
 });

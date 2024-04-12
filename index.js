@@ -32,8 +32,6 @@ const chest_data = JSON.parse(fs.readFileSync('./data/chest.json','utf8'));
 var order_progress = {test:0}
 var area_progress = {test:0}
 
-
-
 // 本体
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;

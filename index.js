@@ -3,6 +3,10 @@ const { Client, Events, GatewayIntentBits, Guild, GuildMessageManager, EmbedBuil
 const fs = require('fs');
 const { token } = require('./config.json');
 const { channel } = require('diagnostics_channel');
+const express = require('express');
+const app = express();
+app.use('/healthcheck', require('./routes/healthchecker'));
+app.listen(80)
 
 // DB
 const Database = require('better-sqlite3');
@@ -27,6 +31,8 @@ const order_data = JSON.parse(fs.readFileSync('./data/order.json','utf8'));
 const chest_data = JSON.parse(fs.readFileSync('./data/chest.json','utf8'));
 var order_progress = {test:0}
 var area_progress = {test:0}
+
+
 
 // 本体
 client.on('messageCreate', async (message) => {
